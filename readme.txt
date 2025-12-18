@@ -1,8 +1,11 @@
 prepare:
-install rfmix
+install rfmix, gsl
 -vcf vcf.gz
--msp train.msp.tsv(prepare by RFMix2.sh)
+-msp msp.tsv(prepare by RFMix2.sh)
 -pheno train.pheno
 -covar covar.txt(make document all default 1)
 
-example: SDPR_admix -vcf chr22_train.vcf.gz -msp chr22_train.msp.tsv -pheno train.pheno -covar covar.txt -iter 100 -burn 0  -out res.txt
+example: bash SDPR.sh -r ref.vcf.gz -t chr22_train.vcf.gz -g genetic_map_chr22.txt -s sample_map.txt -c 22 -ph train.pheno -co covar.txt
+
+RFMix2.sh: rfmix + 格式轉換
+convert_rfmix_msp_to_sdpr.py: 格式轉換(rfmix結果到sdpr輸入)
