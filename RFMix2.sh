@@ -79,6 +79,6 @@ rfmix \
   --n-threads=4
 
 # === STEP 3: postprocess .msp.tsv into summary ===
-python convert_rfmix_msp_to_sdpr.py \
+python /home/Weber/Pipeline/SDPR/convert_rfmix_msp_to_sdpr.py \
   --input ${OUTDIR}/chr${CHR}.msp.tsv \
   --output ${OUTDIR}/chr${CHR}_sdpr.msp.tsv

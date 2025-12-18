@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # === Help ===
 Help() {
@@ -7,17 +8,17 @@ Help() {
 
 必要參數:
   -r, --ref            reference vcf
-  -t, --target         target vcf
+  -t, --target         phased genotype file in the gzipped vcf format
   -g, --genetic_map    chrmosome genetic_map
   -s, --sample_map     sample_map 
   -c, --chr            chromosome number
-  -ph                  phenotype
-  -co                  covar.txt
+  -ph                  phenotype file
+  -co                  the covariate file(covar.txt)
 
 其他:
   -h, --help   
   
-  example: SDPR.sh -r ref.vcf.gz -t chr22_train.vcf.gz -g genetic_map_chr22.txt -s sample_map.txt -c 22 -ph train.pheno -co covar.txt
+  example: bash SDPR.sh -r ref.vcf.gz -t chr22_train.vcf.gz -g genetic_map_chr22.txt -s sample_map.txt -c 22 -ph train.pheno -co covar.txt
 
 "
   }
@@ -79,7 +80,7 @@ echo "Running RFMix2 for chromosome $CHR..."
 bash /home/Weber/Pipeline/SDPR/RFMix2.sh \
     -r "$ref" -t "$target" -g "$genetic_map" -s "$sample_map" -c "$CHR"
 
-
+# msp: the directory containing RFMix2 solved local ancestry files.
 MSP_FILE="${OUTDIR}/chr${CHR}_sdpr.msp.tsv"
 if [[ ! -f "$MSP_FILE" ]]; then
     echo "❌ MSP file not found: $MSP_FILE" >&2
@@ -95,6 +96,14 @@ echo "Running SDPR_admix..."
     -covar "$covar" \
     -iter 100 \
     -burn 0 \
-    -out "chr${CHR}_sdpr.txt"
+    -out "${OUTDIR}/chr${CHR}_sdpr.txt"
 
 echo "✅ Finished PRS training for chromosome $CHR"
+
+echo "Running Score..."
+/home/Weber/SDPR_admix/score \
+    -vcf "$target" \
+    -msp "$MSP_FILE" \
+    -score "${OUTDIR}/chr${CHR}_sdpr.txt"
+    -out "${OUTDIR}/chr${CHR}_sdpr.profile"
+echo "✅ Finished calculating ancestry-aware PRS for chromosome $CHR"

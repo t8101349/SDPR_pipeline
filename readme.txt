@@ -1,4 +1,5 @@
 prepare:
+install rfmix
 -vcf vcf.gz
 -msp train.msp.tsv(prepare by RFMix2.sh)
 -pheno train.pheno
